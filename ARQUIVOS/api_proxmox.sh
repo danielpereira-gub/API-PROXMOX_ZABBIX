@@ -16,15 +16,15 @@ decodeDataFromJson(){
 }
 
 
-PROX_USERNAME=root@pam
-PROX_PASSWORD=gub@2019
-NOME_PROX=proxmoxgub02
-IP_PROX=172.20.10.33
+PROX_USERNAME=
+PROX_PASSWORD=
+NOME_PROX=
+IP_PROX=
 
-URL='http://186.216.240.42/api_jsonrpc.php'
+URL='http:///api_jsonrpc.php'
 HEADER='Content-Type:application/json'
-USER='"Daniel"'
-PASS='"leinad0805115405"'
+USER='""'
+PASS='""'
 
 ##TICKET PROXMOX
 DATA=$(curl https://$IP_PROX:8006/api2/json/access/ticket -k -d 'username='$PROX_USERNAME'&password='$PROX_PASSWORD'')

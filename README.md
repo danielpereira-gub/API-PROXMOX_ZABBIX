@@ -9,7 +9,7 @@ Instalando o pacote necessario:
 <pre>sudo yum install wget curl -y bc</pre>
 
 <blockquote> <p> Faça o download do script</p> </blockquote>
-<pre>wget https://raw.githubusercontent.com/danielpereira-gub/API-PROXMOX_ZABBIX/main/ARQUIVOS/api_proxmox.sh bc</pre>
+<pre>wget https://raw.githubusercontent.com/danielpereira-gub/API-PROXMOX_ZABBIX/main/ARQUIVOS/api_proxmox.shbc</pre>
 
 
 <h3>

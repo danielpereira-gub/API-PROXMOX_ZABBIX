@@ -1,10 +1,3 @@
-# REQUISITOS:
-
-1- Possuir o CURL instalando
-2 - Baixar o script api_proxmox.sh, de prefencia na máquina onde esta rodando.
-
-
-
 <h3>
 Instalando o pacote necessario:
 </h3>

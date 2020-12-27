@@ -8,7 +8,7 @@ Instalando o pacote necessario:
 <blockquote> <p> Centos/Redhat</p> </blockquote>
 <pre>sudo yum install wget curl -y </pre>
 
-<blockquote> <p> Faça o download do script</p> </blockquote>
+<blockquote> <p> Faça o download do script, recomendo que seja no servidor do proxmox:</p> </blockquote>
 <pre>wget https://raw.githubusercontent.com/danielpereira-gub/API-PROXMOX_ZABBIX/main/ARQUIVOS/api_proxmox.sh </pre>
 
 

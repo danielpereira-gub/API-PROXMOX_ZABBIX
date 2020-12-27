@@ -1,0 +1,408 @@
+zabbix_export:
+  version: '5.2'
+  date: '2020-12-27T04:48:22Z'
+  groups:
+    -
+      name: TEMPLATES_SERVIDORES
+  templates:
+    -
+      template: 'TEMPLATE API_PROXMOX'
+      name: 'TEMPLATE API_PROXMOX'
+      groups:
+        -
+          name: TEMPLATES_SERVIDORES
+      applications:
+        -
+          name: JSON
+        -
+          name: PROXMOX
+      items:
+        -
+          name: 'JSON: DISCOS DO SERVIDOR'
+          type: HTTP_AGENT
+          key: json.disk.server
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          applications:
+            -
+              name: JSON
+          timeout: 15s
+          url: 'https://{$IP}:8006/api2/json/nodes/{$NOME}/storage'
+          headers:
+            -
+              name: Cookie
+              value: 'PVEAuthCookie={$TICKET2}'
+        -
+          name: 'JSON NODE'
+          type: HTTP_AGENT
+          key: json.node
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          applications:
+            -
+              name: JSON
+          timeout: 5s
+          url: 'https://{$IP}:8006/api2/json/nodes'
+          headers:
+            -
+              name: Cookie
+              value: 'PVEAuthCookie={$TICKET2}'
+        -
+          name: 'JSON SERVIDORES'
+          type: HTTP_AGENT
+          key: json.servidores
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          applications:
+            -
+              name: JSON
+          timeout: 15s
+          url: 'https://{$IP}:8006/api2/json/nodes/{$NOME}/qemu'
+          headers:
+            -
+              name: Cookie
+              value: 'PVEAuthCookie={$TICKET2}'
+        -
+          name: 'TOTAL DE CPU DO SERVIDOR'
+          type: DEPENDENT
+          key: total.cpu.proxmox
+          delay: '0'
+          applications:
+            -
+              name: PROXMOX
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $..maxcpu.first()
+          master_item:
+            key: json.node
+        -
+          name: 'TOTAL DE MEMORIA DO SERVIDOR'
+          type: DEPENDENT
+          key: total.memoria.proxmox
+          delay: '0'
+          units: B
+          applications:
+            -
+              name: PROXMOX
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $..maxmem.first()
+          master_item:
+            key: json.node
+        -
+          name: 'MEMORIA EM USO NO SERVIDOR'
+          type: DEPENDENT
+          key: usada.memoria.proxmox
+          delay: '0'
+          units: B
+          applications:
+            -
+              name: PROXMOX
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $..mem.first()
+          master_item:
+            key: json.node
+        -
+          name: 'UTILIZAÇÃO DE CPU DO SERVIDOR'
+          type: DEPENDENT
+          key: util.cpu.proxmox
+          delay: '0'
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: PROXMOX
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $..cpu.first()
+            -
+              type: MULTIPLIER
+              parameters:
+                - '100'
+          master_item:
+            key: json.node
+        -
+          name: 'UTILIZAÇÃO DE MEMORIA DO SERVIDOR'
+          type: CALCULATED
+          key: utilizacao.memoria
+          value_type: FLOAT
+          units: '%'
+          params: |
+            100*last("usada.memoria.proxmox")/
+            last("total.memoria.proxmox")
+          applications:
+            -
+              name: PROXMOX
+      discovery_rules:
+        -
+          name: 'DISCOVERY DE DISCOS DO SERVER'
+          type: DEPENDENT
+          key: discovery.disks
+          delay: '0'
+          lifetime: 1d
+          item_prototypes:
+            -
+              name: 'SERVIDOR: {#NOME} - TOTAL DE DISCO'
+              type: DEPENDENT
+              key: 'disco.total.[{#NOME}]'
+              delay: '0'
+              history: 1w
+              trends: 60d
+              units: B
+              applications:
+                -
+                  name: PROXMOX
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.storage== ''{#NOME}'')].total.first()'
+              master_item:
+                key: json.disk.server
+            -
+              name: '{#NOME}: ESPAÇO EM USO'
+              type: DEPENDENT
+              key: 'disco.usado.[{#NOME}]'
+              delay: '0'
+              history: 1w
+              trends: 60d
+              units: B
+              applications:
+                -
+                  name: PROXMOX
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.storage== ''{#NOME}'')].used.first()'
+              master_item:
+                key: json.disk.server
+            -
+              name: 'SERVIDOR: {#NOME} - UTILIZAÇÃO DE DISCO'
+              type: CALCULATED
+              key: 'disco.utilizacao.[{#NOME}]'
+              history: 1w
+              trends: 30d
+              value_type: FLOAT
+              units: '%'
+              params: |
+                100*last("disco.usado.[{#NOME}]") /
+                last("disco.total.[{#NOME}]")
+              applications:
+                -
+                  name: PROXMOX
+          master_item:
+            key: json.disk.server
+          lld_macro_paths:
+            -
+              lld_macro: '{#NOME}'
+              path: $.storage
+        -
+          name: 'DISCOVERY SERVIDORES'
+          type: DEPENDENT
+          key: discovery.servidores
+          delay: '0'
+          lifetime: 1d
+          item_prototypes:
+            -
+              name: '{#NAME}: CONFIGURAÇÃO'
+              type: HTTP_AGENT
+              key: 'config.[{#ID}]'
+              trends: '0'
+              value_type: TEXT
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              timeout: 5s
+              url: 'https://{$IP}:8006/api2/json/nodes/{$NOME}/qemu/{#ID}/config'
+              headers:
+                -
+                  name: Cookie
+                  value: 'PVEAuthCookie={$TICKET2}'
+            -
+              name: '{#NAME}: TOTAL DE DISCO'
+              type: DEPENDENT
+              key: 'disco.total.[{#ID}]'
+              delay: '0'
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].maxdisk.first()'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: DISCO EM USO'
+              type: DEPENDENT
+              key: 'disco.utilizado.[{#ID}]'
+              delay: '0'
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].disk.first()'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: IP'
+              type: DEPENDENT
+              key: 'ip.[{#ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: CHAR
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.description.first()'
+              master_item:
+                key: 'config.[{#ID}]'
+            -
+              name: '{#NAME}: TOTAL DE MEMORIA'
+              type: DEPENDENT
+              key: 'memoria.total.[{#ID}]'
+              delay: '0'
+              units: B
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].maxmem.first()'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: MEMORIA EM USO'
+              type: DEPENDENT
+              key: 'memoria.utilizada.[{#ID}]'
+              delay: '0'
+              units: B
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].mem.first()'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: NUMERO DE CPUS'
+              type: DEPENDENT
+              key: 'num.cpus.[{#ID}]'
+              delay: '0'
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].cpus.first()'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: STATUS'
+              type: DEPENDENT
+              key: 'status.[{#ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].status.first()'
+                -
+                  type: STR_REPLACE
+                  parameters:
+                    - running
+                    - '1'
+                -
+                  type: STR_REPLACE
+                  parameters:
+                    - stopped
+                    - '0'
+              master_item:
+                key: json.servidores
+            -
+              name: '{#NAME}: UTILIZAÇÃO DE CPU'
+              type: DEPENDENT
+              key: 'util.cpus.[{#ID}]'
+              delay: '0'
+              value_type: FLOAT
+              units: '%'
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.*.[?(@.name == ''{#NAME}'')].cpu.first()'
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '100'
+              master_item:
+                key: json.servidores
+              trigger_prototypes:
+                -
+                  expression: '{min(5m)}>65'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: '{min(5m)}<61'
+                  name: 'USO DE CPU ACIMA DE 65% EM {#NAME}'
+                  priority: AVERAGE
+            -
+              name: '{#NAME}: UTILIZAÇÃO DE MEMORIA'
+              type: CALCULATED
+              key: 'utilizacao.memoria.[{#ID}]'
+              value_type: FLOAT
+              units: '%'
+              params: |
+                100*last("memoria.utilizada.[{#ID}]") /
+                last("memoria.total.[{#ID}]")
+              application_prototypes:
+                -
+                  name: '{#NAME}'
+          master_item:
+            key: json.servidores
+          lld_macro_paths:
+            -
+              lld_macro: '{#ID}'
+              path: $.vmid
+            -
+              lld_macro: '{#NAME}'
+              path: $.name
+      macros:
+        -
+          macro: '{$IP}'
+        -
+          macro: '{$NOME}'

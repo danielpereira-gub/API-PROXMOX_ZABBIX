@@ -5,7 +5,7 @@ Instalando o pacote necessario:
 <blockquote> <p> Debian/Ubuntu</p> </blockquote>
 <pre>sudo apt-get install -y wget curl bc</pre>
 
-<blockquote> <p> Debian/Ubuntu</p> </blockquote>
+<blockquote> <p> Centos/Redhat</p> </blockquote>
 <pre>sudo yum install wget curl -y bc</pre>
 
 <blockquote> <p> Faça o download do script</p> </blockquote>
@@ -16,15 +16,17 @@ Instalando o pacote necessario:
 Editando o script alterando as variaveis conforme o seu ambiente:
 </h3>
 
-PROX_USERNAME=nome_de_usuario_proxmox
+<blockquote> <p> INFORMAÇÕES PROXMOX</p> </blockquote>
+<pre>PROX_USERNAME=nome_de_usuario_proxmox
 PROX_PASSWORD=senha_de_usuario_proxmox
 NOME_PROX=nome_do_node_no_proxmox
-IP_PROX=ip_proxmox
+IP_PROX=ip_proxmox bc</pre>
 
-URL='http://ipzabbix/api_jsonrpc.php'
+<blockquote> <p> INFORMAÇÕES ZABBIX</p> </blockquote>
+<pre>URL='http://ipzabbix/api_jsonrpc.php'
 HEADER='Content-Type:application/json'
 USER='"nome_de_usuario_zabbix"'
-PASS='"senha_zabbix"'
+PASS='"senha_zabbix"'bc</pre>
 
 
 <blockquote> <p> Altere o hostid para o id do seu host no zabbix</p> </blockquote>

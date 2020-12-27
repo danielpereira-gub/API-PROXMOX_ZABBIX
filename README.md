@@ -34,3 +34,19 @@ PASS='"senha_zabbix"'bc</pre>
                         "hostid": "10418",
                         "macros": [
 bc</pre>
+
+
+<h3>
+Importe o template e crie o host no zabbix colocando as seguintes informações nas macros do host:
+</h3>
+
+<blockquote> <p> Macros: x</p> </blockquote>
+
+<img src="https://i.ibb.co/X5WzJfS/image.png"/><br><br>
+
+
+
+
+
+
+

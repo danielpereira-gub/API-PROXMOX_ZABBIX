@@ -45,7 +45,12 @@ Importe o template e crie o host no zabbix colocando as seguintes informações 
 <img src="https://i.ibb.co/X5WzJfS/image.png"/><br><br>
 
 
+<h3>
+Adicone o script no crontab do seu servidor, com o tempo que achar necessario, recomendo que a cada 1 minuto:
+</h3>
 
+<blockquote> <p> EXEMPLO </p> </blockquote>
+</pre>*/1 * * * * bash caminho_do_arquivo/api_proxmox.sh</pre>
 
 
 

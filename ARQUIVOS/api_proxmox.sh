@@ -15,16 +15,17 @@ decodeDataFromJson(){
             | awk -F "|" '{print $2}'`
 }
 
+###PROXMOX###
+PROX_USERNAME=user_proxmox
+PROX_PASSWORD=senha_proxmox
+NOME_PROX=nome_do_node
+IP_PROX=ip_proxmox
 
-PROX_USERNAME=
-PROX_PASSWORD=
-NOME_PROX=
-IP_PROX=
-
-URL='http:///api_jsonrpc.php'
+###ZABBIX###
+URL='http://ip_zabbix/api_jsonrpc.php'
 HEADER='Content-Type:application/json'
-USER='""'
-PASS='""'
+USER='"user_zabbix"'
+PASS='"senha_zabbix"'
 
 ##TICKET PROXMOX
 DATA=$(curl https://$IP_PROX:8006/api2/json/access/ticket -k -d 'username='$PROX_USERNAME'&password='$PROX_PASSWORD'')

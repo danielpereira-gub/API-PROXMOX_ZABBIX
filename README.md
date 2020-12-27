@@ -1,2 +1,8 @@
-# API-PROXMOX_ZABBIX
-MONITORAMENTO PROXMOX VIA API UTILIZANDO ZABBIX
+# PRÉ REQUISITOS
+
+Sistemas DEBIAN/UBUNTU
+apt-get install curl
+
+Sistemas REDHAT/CENTOS
+
+yum install curl
